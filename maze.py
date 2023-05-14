@@ -1,6 +1,5 @@
 # Maze Solver using Q-Learning
 
-
 class Maze:
     def __init__(self):
         # 2 means target, 3 means start, 0 means path, -1 means wall
@@ -68,6 +67,7 @@ class Maze:
         moves = self.get_moves(X, Y)
 
         for x,y in moves:
+            # Q = Q + alpha*reward
             self.q[x][y] += self.learningRate * self.reward(self.maze, [x, y])
             self.maze[X][Y] = 1
 
