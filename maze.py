@@ -60,16 +60,6 @@ class Maze:
         self.currentY = 4
 
         self.recursion(self.currentX, self.currentY)
-
-        # while self.currentX != 0 or self.currentY != 0:
-        #     moves = self.get_moves(self.currentX, self.currentY)
-        #     print(moves)
-        #     for i in self.q:
-        #         print(i)
-
-        #     for x,y in moves:
-        #         print(x,y)
-        #         self.q[x][y] += self.learningRate * self.reward(self.maze, [x, y])
         
     
     def recursion(self, X, Y):
@@ -83,12 +73,6 @@ class Maze:
 
             if self.maze[x][y] != 1:
                 self.recursion(x, y)
-
-        # if x < 0 or x >= self.length or y < 0 or y >= self.height:
-        #     return False
-        
-        # if self.maze[x][y] == 0: # path
-        #     self.q[x][y] = max()
     
     def show(self, path):
         for x in range(self.height):
@@ -128,4 +112,3 @@ class Maze:
 ai = Maze()
 ai.explore()
 ai.print_path()
-# ai.show()
