@@ -86,7 +86,7 @@ class Maze:
                 elif [x, y] in path:
                     print(" ", end='')
                 else:
-                    print("-", end='')
+                    print("X", end='')
             print()
 
     def print_path(self):
