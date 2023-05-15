@@ -2,7 +2,6 @@
 
 class Maze:
     def __init__(self, maze, original_maze, length, height, startX, startY, endX, endY):
-        # 2 means target, 3 means start, 0 means path, -1 means wall
         self.maze = maze
         self.length = length
         self.height = height
@@ -22,6 +21,7 @@ class Maze:
             self.q.append(arr)
     
     def get_moves(self, x, y):
+        """Get all possible moves from a given co-ordinate"""
         moves = [[x-1, y], [x, y-1], [x, y+1], [x+1, y]]
         if x == 0:
             moves.remove([x-1, y])
@@ -36,7 +36,7 @@ class Maze:
         return moves
     
     def reward(self, state, action):
-        """Get the reward for an action on a given state"""
+        """Get the reward for an action on a given state and update the q-table"""
         if state[action[0]][action[1]] == 2:
             return 10.0
         elif state[action[0]][action[1]] == 1:
@@ -47,6 +47,7 @@ class Maze:
             return -1.0
 
     def explore(self):
+        """Explore all paths and get reward at each action"""
         path = [[self.currentX, self.currentY]]
 
         self.recursion(self.currentX, self.currentY, path)
@@ -56,6 +57,7 @@ class Maze:
         
     
     def recursion(self, X, Y, path):
+        """Recursively explore different states"""
         if X == 0 and Y == 0:
             self.show(path)
             print("Epoch: " + str(self.epochs))
@@ -64,7 +66,8 @@ class Maze:
         moves = self.get_moves(X, Y)
 
         for x,y in moves:
-            # Q = Q + alpha*reward
+
+            # Q = Q + learning_rate * reward
             self.q[x][y] = round(self.q[x][y] + self.learningRate * self.reward(self.maze, [x, y]), 3)
             self.maze[X][Y] = 4
 
@@ -80,6 +83,7 @@ class Maze:
                 self.recursion(x, y, path)
     
     def show(self, path):
+        """Display current status of the maze explored"""
         for x in range(self.height):
             for y in range(self.length):
                 if self.original_maze[x][y] == 1: # start point
@@ -97,6 +101,7 @@ class Maze:
 
 
     def print_path(self):
+        """Print the output best path"""
         path = [[self.currentX, self.currentY]]
         visited = [[self.currentX, self.currentY]]
 
@@ -134,13 +139,9 @@ class Maze:
         print("\n\nMaze:\n")
         self.show(path)
     
-    def train(self):
-        for epoch in range(1,11):
-            print("\n\nEpoch:", str(epoch))
-            self.explore()
 
 
-# data 
+# maze data 
 
 # 0 -> path
 # 1 -> start
@@ -188,7 +189,3 @@ for i in range(len(maze)):
 
 ai = Maze(maze, original_maze, length, height, startX, startY, endX, endY)
 ai.explore()
-
-# ai.train()
-
-# ai.print_path()
