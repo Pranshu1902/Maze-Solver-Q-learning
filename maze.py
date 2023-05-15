@@ -20,6 +20,7 @@ class Maze:
                 arr.append(0.0)
             self.q.append(arr)
     
+
     def get_moves(self, x, y):
         """Get all possible moves from a given co-ordinate"""
         moves = [[x-1, y], [x, y-1], [x, y+1], [x+1, y]]
@@ -35,6 +36,7 @@ class Maze:
         
         return moves
     
+
     def reward(self, state, action):
         """Get the reward for an action on a given state and update the q-table"""
         if state[action[0]][action[1]] == 2:
@@ -45,6 +47,7 @@ class Maze:
             return 5.0
         else:
             return -1.0
+
 
     def explore(self):
         """Explore all paths and get reward at each action"""
@@ -82,6 +85,7 @@ class Maze:
                 path.append([x, y])
                 self.recursion(x, y, path)
     
+
     def show(self, path):
         """Display current status of the maze explored"""
         for x in range(self.height):
@@ -138,6 +142,8 @@ class Maze:
         
         print("\n\nMaze:\n")
         self.show(path)
+        # ' ' means chosen states
+        # 'X' means not chosen states
     
 
 
