@@ -1,7 +1,7 @@
 # Maze Solver using Q-Learning
 
 class Maze:
-    def __init__(self, maze, original_maze, length, height, startX, startY):
+    def __init__(self, maze, original_maze, length, height, startX, startY, endX, endY):
         # 2 means target, 3 means start, 0 means path, -1 means wall
         self.maze = maze
         self.length = length
@@ -12,6 +12,8 @@ class Maze:
         self.original_maze = original_maze
         self.currentX = startX
         self.currentY = startY
+        self.endX = endX
+        self.endY = endY
         
         for i in range(self.height):
             arr = []
@@ -63,32 +65,32 @@ class Maze:
 
         for x,y in moves:
             # Q = Q + alpha*reward
-            self.q[x][y] += self.learningRate * self.reward(self.maze, [x, y])
-            self.maze[X][Y] = 1
+            self.q[x][y] = round(self.q[x][y] + self.learningRate * self.reward(self.maze, [x, y]), 3)
+            self.maze[X][Y] = 4
 
-            if self.maze[x][y] == -1:
+            if self.maze[x][y] == 3:
                 print("Epoch: " + str(self.epochs))
                 self.epochs += 1
                 self.show(path)
                 # self.print_path()
                 # return
 
-            elif self.maze[x][y] != 1:
+            elif self.maze[x][y] != 4:
                 path.append([x, y])
                 self.recursion(x, y, path)
     
     def show(self, path):
         for x in range(self.height):
             for y in range(self.length):
-                if self.original_maze[x][y] == 2:
-                    print("B", end='')
-                elif self.original_maze[x][y] == 3:
+                if self.original_maze[x][y] == 1: # start point
                     print("A", end='')
-                elif self.original_maze[x][y] == -1:
+                elif self.original_maze[x][y] == 3: # wall
                     print("#", end='')
-                elif [x, y] in path:
+                elif self.original_maze[x][y] == 2: # end point
+                    print("B", end='')
+                elif [x, y] in path: # traversed path
                     print(" ", end='')
-                else:
+                else: # not chosen path
                     print("X", end='')
             print()
         print("\n\n")
@@ -97,68 +99,33 @@ class Maze:
     def print_path(self):
         path = [[self.currentX, self.currentY]]
         visited = [[self.currentX, self.currentY]]
-        while self.currentX != 0 or self.currentY != 0:
+
+        while self.currentX != self.endX or self.currentY != self.endY:
             # index with highest q value among the neighbours
-            
-            # x, y-1 is best move
-            # if self.currentY>0 and (self.currentX > 0 and self.q[self.currentX][self.currentY-1] > self.q[self.currentX-1][self.currentY]) and (
-            #     self.currentX < self.height-1 and self.q[self.currentX][self.currentY-1] > self.q[self.currentX+1][self.currentY] 
-            # ) and (
-            #     self.currentY < self.length-1 and self.q[self.currentX][self.currentY-1] > self.q[self.currentX][self.currentY+1] 
-            # ):
-            #     path.append([self.currentX, self.currentY-1])
-            #     self.currentY -= 1
-            
-            # # x, y+1 is best move
-            # elif self.currentY<self.length-1 and (self.currentX > 0 and self.q[self.currentX][self.currentY+1] > self.q[self.currentX-1][self.currentY]) and (
-            #     self.currentX < self.height-1 and self.q[self.currentX][self.currentY+1] > self.q[self.currentX+1][self.currentY] 
-            # ) and (
-            #     self.currentY < self.height-1 and self.q[self.currentX][self.currentY+1] > self.q[self.currentX][self.currentY+1] 
-            # ):
-            #     path.append([self.currentX, self.currentY-1])
-            #     self.currentY += 1
-            
-            # # x-1, y is best move
-            # elif self.currentX>0 and (
-            #     self.currentY < self.length-1 and self.q[self.currentX-1][self.currentY] > self.q[self.currentX][self.currentY+1] 
-            # ) and (
-            #     self.currentY > 0 and self.q[self.currentX-1][self.currentY] > self.q[self.currentX][self.currentY-1] 
-            # ) and (
-            #     self.currentX <self.height-1 and self.q[self.currentX-1][self.currentY] > self.q[self.currentX+1][self.currentY] 
-            # ):
-            #     path.append([self.currentX, self.currentY-1])
-            #     self.currentX -= 1
-            
-            # # x+1, y is best move
-            # else:
-            #     path.append([self.currentX-1, self.currentY])
-            #     self.currentX += 1
-            
-            # 2nd approach
             d = {}
             
-            if self.currentX > 0:
+            if self.currentX > 0 and self.original_maze[self.currentX-1][self.currentY] != 3:
                 d[(self.currentX-1, self.currentY)] = self.q[self.currentX-1][self.currentY]
             
-            if self.currentX < self.height-1:
+            if self.currentX < self.height-1 and self.original_maze[self.currentX+1][self.currentY] != 3:
                 d[(self.currentX+1, self.currentY)] = self.q[self.currentX+1][self.currentY]
             
-            if self.currentY > 0:
+            if self.currentY > 0 and self.original_maze[self.currentX][self.currentY-1] != 3:
                 d[(self.currentX, self.currentY-1)] = self.q[self.currentX][self.currentY-1]
             
-            if self.currentY < self.length-1:
+            if self.currentY < self.length-1 and self.original_maze[self.currentX][self.currentY+1] != 3:
                 d[(self.currentX, self.currentY+1)] = self.q[self.currentX][self.currentY+1]
 
-            nextQ = max(d.values())
+            # sort the values in descending order
+            sorted(d.items(), key=lambda item: item[1], reverse=True)
 
             for k,v in d.items():
-                if v == nextQ and [k[0], k[1]] not in visited:
-                    # print(k[0], k[1])
+                if [k[0], k[1]] not in visited: # take the first non-visited state with highest q-value
                     self.currentX = k[0]
                     self.currentY = k[1] 
                     path.append([self.currentX, self.currentY])
                     visited.append([self.currentX, self.currentY])
-                    break           
+                    break      
 
         print("Q-Learning table:\n")
         for i in self.q:
@@ -175,31 +142,31 @@ class Maze:
 
 # data 
 
-# 3 -> start
-# 2 -> end
-# -1 -> wall
 # 0 -> path
+# 1 -> start
+# 2 -> end
+# 3 -> wall
 
 maze = [
-    [2, 0, 0, -1, -1],
-    [0, 0, -1, -1, -1],
-    [-1, 0, -1, -1, -1],
-    [-1, 0, 0, 0, -1],
-    [0, 0, 0, -1, 3],
-    [0, 0, -1, 0, 0],
-    [-1, 0, -1, 0, -1],
-    [-1, 0, 0, 0, -1]
+    [2, 0, 0, 3, 3],
+    [0, 0, 3, 3, 3],
+    [3, 0, 3, 3, 3],
+    [3, 0, 0, 0, 3],
+    [0, 0, 0, 3, 1],
+    [0, 0, 3, 0, 0],
+    [3, 0, 3, 0, 3],
+    [3, 0, 0, 0, 3]
 ]
 
 original_maze = [
-    [2, 0, 0, -1, -1],
-    [0, 0, -1, -1, -1],
-    [-1, 0, -1, -1, -1],
-    [-1, 0, 0, 0, -1],
-    [0, 0, 0, -1, 3],
-    [0, 0, -1, 0, 0],
-    [-1, 0, -1, 0, -1],
-    [-1, 0, 0, 0, -1]
+    [2, 0, 0, 3, 3],
+    [0, 0, 3, 3, 3],
+    [3, 0, 3, 3, 3],
+    [3, 0, 0, 0, 3],
+    [0, 0, 0, 3, 1],
+    [0, 0, 3, 0, 0],
+    [3, 0, 3, 0, 3],
+    [3, 0, 0, 0, 3]
 ]
 
 length = len(maze[0])
@@ -207,13 +174,19 @@ height = len(maze)
 
 startX = startY = 0
 for i in range(len(maze)):
-    if 3 in maze[i]:
+    if 1 in maze[i]:
         startX = i
-        startY = maze[i].index(3)
+        startY = maze[i].index(1)
         break
 
+endX = endY = 0
+for i in range(len(maze)):
+    if 2 in maze[i]:
+        endX = i
+        endY = maze[i].index(2)
+        break
 
-ai = Maze(maze, original_maze, length, height, startX, startY)
+ai = Maze(maze, original_maze, length, height, startX, startY, endX, endY)
 ai.explore()
 
 # ai.train()
